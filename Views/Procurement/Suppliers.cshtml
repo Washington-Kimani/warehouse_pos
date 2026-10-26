@@ -1,0 +1,24 @@
+@model IReadOnlyList<WarehouseProcurement.Models.Supplier>
+@{
+    ViewData["Title"] = "Suppliers";
+}
+<section class="page-heading">
+    <div><div class="eyebrow">PURCHASING</div><h1>Suppliers</h1><p>Maintain supplier contacts used on purchase orders.</p></div>
+    <a class="btn btn-primary" asp-action="NewSupplier">＋ Add supplier</a>
+</section>
+<section class="panel">
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state"><strong>No suppliers registered</strong><span>Add supplier details before creating a purchase order.</span><a asp-action="NewSupplier">Add your first supplier</a></div>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table app-table">
+            <thead><tr><th>Supplier</th><th>Contact</th><th>Phone</th><th>Email</th><th>Status</th></tr></thead>
+            <tbody>@foreach (var supplier in Model)
+            {
+                <tr><td><strong>@supplier.Name</strong><div class="table-subtext">@supplier.Address</div></td><td>@supplier.ContactName</td><td>@supplier.Phone</td><td>@supplier.Email</td><td><span class="status-pill @(supplier.IsActive ? "status-received" : "status-closed")">@(supplier.IsActive ? "Active" : "Inactive")</span></td></tr>
+            }</tbody>
+        </table></div>
+    }
+</section>

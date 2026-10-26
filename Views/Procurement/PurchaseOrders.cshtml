@@ -1,0 +1,31 @@
+@model IReadOnlyList<WarehouseProcurement.Models.PurchaseOrder>
+@{
+    ViewData["Title"] = "Purchase orders";
+}
+<section class="page-heading">
+    <div><div class="eyebrow">PROCUREMENT</div><h1>Purchase orders</h1><p>Order goods from suppliers and track inbound quantities.</p></div>
+    <a class="btn btn-primary" asp-action="NewPurchaseOrder">＋ New purchase order</a>
+</section>
+<section class="panel">
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state"><strong>No purchase orders yet</strong><span>Create an order to begin tracking supplier deliveries.</span><a asp-action="NewPurchaseOrder">Create purchase order</a></div>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table app-table">
+            <thead><tr><th>Order</th><th>Supplier</th><th>Warehouse</th><th>Ordered</th><th>Lines</th><th>Status</th><th></th></tr></thead>
+            <tbody>@foreach (var order in Model)
+            {
+                <tr>
+                    <td><a class="table-primary-link" asp-action="PurchaseOrder" asp-route-id="@order.Id">@order.Number</a><div class="table-subtext">@order.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy")</div></td>
+                    <td>@order.Supplier.Name</td><td>@order.Warehouse.Name</td>
+                    <td>@order.Lines.Sum(line => line.OrderedQuantity).ToString("N2")</td>
+                    <td>@order.Lines.Count</td>
+                    <td><span class="status-pill status-@order.Status.ToLowerInvariant().Replace(" ", "-")">@order.Status</span></td>
+                    <td><a class="icon-link" asp-action="PurchaseOrder" asp-route-id="@order.Id" aria-label="Open order">→</a></td>
+                </tr>
+            }</tbody>
+        </table></div>
+    }
+</section>

@@ -1,0 +1,52 @@
+@model WarehouseProcurement.Models.PurchaseOrder
+@{
+    ViewData["Title"] = Model.Number;
+    var outstanding = Model.Lines.Any(line => line.ReceivedQuantity < line.OrderedQuantity);
+}
+<section class="page-heading">
+    <div><div class="eyebrow">PURCHASE ORDER</div><h1>@Model.Number</h1><p>Created @Model.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</p></div>
+    <div class="heading-actions"><a class="btn btn-outline-secondary" asp-action="PurchaseOrders">All orders</a></div>
+</section>
+<section class="detail-cards">
+    <div class="detail-card"><span>Supplier</span><strong>@Model.Supplier.Name</strong><small>@Model.Supplier.ContactName @Model.Supplier.Phone</small></div>
+    <div class="detail-card"><span>Deliver to</span><strong>@Model.Warehouse.Name</strong><small>@(Model.ExpectedAt?.ToString("dd MMM yyyy") ?? "No expected date")</small></div>
+    <div class="detail-card"><span>Order status</span><strong><span class="status-pill status-@Model.Status.ToLowerInvariant().Replace(" ", "-")">@Model.Status</span></strong><small>@Model.Lines.Sum(line => line.ReceivedQuantity).ToString("N2") of @Model.Lines.Sum(line => line.OrderedQuantity).ToString("N2") units received</small></div>
+</section>
+<section class="panel">
+    <div class="panel-heading"><div><h2>Order items</h2><p>@Model.Lines.Count line(s) · Total @Model.Lines.Sum(line => line.OrderedQuantity * line.UnitCost).ToString("N2")</p></div></div>
+    <div class="table-responsive"><table class="table app-table">
+        <thead><tr><th>Product</th><th>Ordered</th><th>Received</th><th>Remaining</th><th>Unit cost</th><th>Line total</th></tr></thead>
+        <tbody>@foreach (var line in Model.Lines)
+        {
+            <tr><td><strong>@line.Product.Name</strong><div class="table-subtext">@line.Product.SKU</div></td><td>@line.OrderedQuantity.ToString("N2") @line.Product.StockUnit</td><td>@line.ReceivedQuantity.ToString("N2")</td><td>@((line.OrderedQuantity - line.ReceivedQuantity).ToString("N2"))</td><td>@line.UnitCost.ToString("N2")</td><td>@((line.OrderedQuantity * line.UnitCost).ToString("N2"))</td></tr>
+        }</tbody>
+    </table></div>
+    @if (!string.IsNullOrWhiteSpace(Model.Notes))
+    {
+        <div class="order-notes"><strong>Notes</strong><p>@Model.Notes</p></div>
+    }
+</section>
+@if (outstanding)
+{
+    <section class="panel receive-panel">
+        <div class="panel-heading"><div><h2>Receive goods</h2><p>Enter quantities actually received; partial receipts are supported.</p></div></div>
+        <form asp-action="Receive" asp-route-id="@Model.Id" method="post">
+            <div class="form-grid receive-reference"><div class="field"><label for="SupplierReference">Supplier delivery reference</label><input id="SupplierReference" name="SupplierReference" class="form-control" placeholder="Optional packing slip or invoice number" /></div></div>
+            <div class="table-responsive"><table class="table app-table">
+                <thead><tr><th>Product</th><th>Outstanding</th><th>Received now</th></tr></thead>
+                <tbody>@foreach (var line in Model.Lines.Where(line => line.ReceivedQuantity < line.OrderedQuantity))
+                {
+                    <tr><td><strong>@line.Product.Name</strong><div class="table-subtext">@line.Product.SKU</div></td>
+                        <td>@((line.OrderedQuantity - line.ReceivedQuantity).ToString("N2")) @line.Product.StockUnit</td>
+                        <td><input name="Quantities[@line.Id]" class="form-control receive-quantity" type="number" min="0" max="@(line.OrderedQuantity - line.ReceivedQuantity)" step="0.0001" value="0" aria-label="Quantity received for @line.Product.Name" /></td>
+                    </tr>
+                }</tbody>
+            </table></div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit">Post goods receipt</button></div>
+        </form>
+    </section>
+}
+else
+{
+    <div class="received-banner"><span>✓</span><div><strong>Purchase order fully received</strong><p>All received quantities have been posted to warehouse stock.</p></div></div>
+}

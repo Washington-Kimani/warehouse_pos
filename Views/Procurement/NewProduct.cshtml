@@ -1,0 +1,20 @@
+@model WarehouseProcurement.Models.Product
+@{
+    ViewData["Title"] = "Add product";
+}
+<section class="page-heading">
+    <div><div class="eyebrow">PRODUCT CATALOGUE</div><h1>Add product</h1><p>Set an item code and the unit used to count warehouse stock.</p></div>
+    <a class="btn btn-outline-secondary" asp-action="Products">Back to products</a>
+</section>
+<section class="panel form-panel">
+    <form asp-action="NewProduct" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div class="form-grid">
+            <div class="field"><label asp-for="SKU">SKU <span class="required">*</span></label><input asp-for="SKU" class="form-control" /><span asp-validation-for="SKU" class="field-error"></span></div>
+            <div class="field"><label asp-for="Name">Product name <span class="required">*</span></label><input asp-for="Name" class="form-control" /><span asp-validation-for="Name" class="field-error"></span></div>
+            <div class="field"><label asp-for="StockUnit">Stock unit</label><input asp-for="StockUnit" class="form-control" placeholder="e.g. ream, roll, carton" /><span asp-validation-for="StockUnit" class="field-error"></span></div>
+            <div class="field"><label asp-for="ReorderLevel">Reorder level</label><input asp-for="ReorderLevel" class="form-control" type="number" min="0" step="0.01" /><span asp-validation-for="ReorderLevel" class="field-error"></span></div>
+        </div>
+        <div class="form-actions"><a class="btn btn-outline-secondary" asp-action="Products">Cancel</a><button class="btn btn-primary" type="submit">Save product</button></div>
+    </form>
+</section>

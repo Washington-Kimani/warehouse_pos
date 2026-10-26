@@ -1,0 +1,24 @@
+@model IReadOnlyList<WarehouseProcurement.Models.Product>
+@{
+    ViewData["Title"] = "Products";
+}
+<section class="page-heading">
+    <div><div class="eyebrow">CATALOGUE</div><h1>Products</h1><p>Warehouse items and their stock units.</p></div>
+    <a class="btn btn-primary" asp-action="NewProduct">＋ Add product</a>
+</section>
+<section class="panel">
+    @if (Model.Count == 0)
+    {
+        <div class="empty-state"><strong>No products registered</strong><span>Add catalogue items before building purchase orders.</span><a asp-action="NewProduct">Add your first product</a></div>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table app-table">
+            <thead><tr><th>SKU</th><th>Product</th><th>Stock unit</th><th>Reorder level</th><th>Status</th></tr></thead>
+            <tbody>@foreach (var product in Model)
+            {
+                <tr><td><span class="code-label">@product.SKU</span></td><td><strong>@product.Name</strong></td><td>@product.StockUnit</td><td>@product.ReorderLevel.ToString("N2")</td><td><span class="status-pill @(product.IsActive ? "status-received" : "status-closed")">@(product.IsActive ? "Active" : "Inactive")</span></td></tr>
+            }</tbody>
+        </table></div>
+    }
+</section>

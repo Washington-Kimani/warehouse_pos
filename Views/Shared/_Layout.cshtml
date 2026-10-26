@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Northstar Procurement</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" asp-controller="Home" asp-action="Index"><span class="brand-mark">N</span> Northstar <span class="brand-subtitle">WAREHOUSE</span></a>
+        <nav class="main-nav" aria-label="Main navigation">
+            <a asp-controller="Home" asp-action="Index">Overview</a>
+            <a asp-controller="Procurement" asp-action="PurchaseOrders">Purchasing</a>
+            <a asp-controller="Procurement" asp-action="Inventory">Inventory</a>
+            <a asp-controller="Procurement" asp-action="Products">Products</a>
+            <a asp-controller="Procurement" asp-action="Suppliers">Suppliers</a>
+        </nav>
+        <span class="local-status"><span></span> Local system</span>
+    </header>
+    <main class="page-shell">
+        @if (TempData["Success"] is string success)
+        {
+            <div class="alert alert-success" role="status">@success</div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="alert alert-danger" role="alert">@error</div>
+        }
+        @RenderBody()
+    </main>
+    <footer class="footer">Northstar Procurement <span>·</span> Warehouse operations</footer>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

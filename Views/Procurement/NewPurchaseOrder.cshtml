@@ -1,0 +1,74 @@
+@model WarehouseProcurement.Models.PurchaseOrderCreateViewModel
+@{
+    ViewData["Title"] = "New purchase order";
+    var products = (List<WarehouseProcurement.Models.Product>)ViewBag.Products;
+}
+<section class="page-heading">
+    <div><div class="eyebrow">PROCUREMENT / NEW ORDER</div><h1>Create purchase order</h1><p>Record supplier, delivery destination, and quantities in each product's stock unit.</p></div>
+    <a class="btn btn-outline-secondary" asp-action="PurchaseOrders">Back to orders</a>
+</section>
+@if (products.Count == 0 || ((Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewBag.Suppliers).Count() == 0)
+{
+    <div class="alert alert-warning">Add at least one active supplier and one active product before creating a purchase order. <a asp-action="NewSupplier">Add supplier</a> · <a asp-action="NewProduct">Add product</a>.</div>
+}
+<section class="panel form-panel">
+    <form asp-action="NewPurchaseOrder" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div class="form-grid">
+            <div class="field"><label asp-for="SupplierId">Supplier <span class="required">*</span></label><select asp-for="SupplierId" asp-items="ViewBag.Suppliers" class="form-select"><option value="">Select supplier</option></select><span asp-validation-for="SupplierId" class="field-error"></span></div>
+            <div class="field"><label asp-for="WarehouseId">Deliver to <span class="required">*</span></label><select asp-for="WarehouseId" asp-items="ViewBag.Warehouses" class="form-select"><option value="">Select warehouse</option></select><span asp-validation-for="WarehouseId" class="field-error"></span></div>
+            <div class="field"><label asp-for="ExpectedAt">Expected delivery</label><input asp-for="ExpectedAt" class="form-control" type="date" /></div>
+            <div class="field"><label asp-for="Notes">Notes</label><input asp-for="Notes" class="form-control" placeholder="Optional supplier instructions" /></div>
+        </div>
+        <div class="section-divider"><div><h2>Order lines</h2><p>Amounts use the product's stock unit and unit cost.</p></div><button type="button" id="add-line" class="btn btn-outline-secondary btn-sm">＋ Add line</button></div>
+        <div class="line-table-wrap">
+            <table class="table line-table">
+                <thead><tr><th>Product</th><th>Quantity</th><th>Unit cost</th><th></th></tr></thead>
+                <tbody id="order-lines">
+                @for (var i = 0; i < Model.Lines.Count; i++)
+                {
+                    <tr class="order-line">
+                        <td><select name="Lines[@i].ProductId" class="form-select product-select"><option value="">Select product</option>@foreach (var product in products){<option value="@product.Id" selected="@(Model.Lines[i].ProductId == product.Id)">@product.SKU — @product.Name (@product.StockUnit)</option>}</select></td>
+                        <td><input name="Lines[@i].Quantity" value="@(Model.Lines[i].Quantity == 0 ? "" : Model.Lines[i].Quantity.ToString(System.Globalization.CultureInfo.InvariantCulture))" class="form-control" type="number" min="0.0001" step="0.0001" placeholder="0" /></td>
+                        <td><input name="Lines[@i].UnitCost" value="@(Model.Lines[i].UnitCost == 0 ? "" : Model.Lines[i].UnitCost.ToString(System.Globalization.CultureInfo.InvariantCulture))" class="form-control" type="number" min="0" step="0.01" placeholder="0.00" /></td>
+                        <td><button type="button" class="remove-line" aria-label="Remove line" title="Remove line">×</button></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <template id="line-template"><tr class="order-line">
+            <td><select class="form-select product-select" data-name="Lines[0].ProductId"><option value="">Select product</option>@foreach (var product in products){<option value="@product.Id">@product.SKU — @product.Name (@product.StockUnit)</option>}</select></td>
+            <td><input class="form-control" data-name="Lines[0].Quantity" type="number" min="0.0001" step="0.0001" placeholder="0" /></td>
+            <td><input class="form-control" data-name="Lines[0].UnitCost" type="number" min="0" step="0.01" placeholder="0.00" /></td>
+            <td><button type="button" class="remove-line" aria-label="Remove line" title="Remove line">×</button></td>
+        </tr></template>
+        <div class="form-actions"><a class="btn btn-outline-secondary" asp-action="PurchaseOrders">Cancel</a><button class="btn btn-primary" type="submit" disabled="@(products.Count == 0)">Create purchase order</button></div>
+    </form>
+</section>
+@section Scripts {
+<script>
+(() => {
+    const rows = document.getElementById("order-lines");
+    const template = document.getElementById("line-template");
+    document.getElementById("add-line").addEventListener("click", () => {
+        const row = template.content.firstElementChild.cloneNode(true);
+        const index = rows.querySelectorAll(".order-line").length;
+        row.querySelectorAll("[data-name]").forEach(input => {
+            input.name = input.dataset.name.replace("[0]", `[${index}]`);
+        });
+        rows.appendChild(row);
+    });
+    rows.addEventListener("click", event => {
+        if (event.target.closest(".remove-line") && rows.querySelectorAll(".order-line").length > 1) {
+            event.target.closest(".order-line").remove();
+            rows.querySelectorAll(".order-line").forEach((row, index) => {
+                row.querySelectorAll("select, input").forEach(input => {
+                    input.name = input.name.replace(/Lines\[\d+\]/, `Lines[${index}]`);
+                });
+            });
+        }
+    });
+})();
+</script>
+}

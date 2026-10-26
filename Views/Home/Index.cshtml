@@ -1,0 +1,90 @@
+@model WarehouseProcurement.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Overview";
+}
+
+<section class="page-heading">
+    <div>
+        <div class="eyebrow">WAREHOUSE OPERATIONS</div>
+        <h1>Procurement overview</h1>
+        <p>Track purchasing, inbound goods, and on-hand inventory.</p>
+    </div>
+    <a class="btn btn-primary" asp-controller="Procurement" asp-action="NewPurchaseOrder">＋ New purchase order</a>
+</section>
+
+<section class="metric-grid" aria-label="Procurement summary">
+    <article class="metric-card">
+        <span class="metric-icon icon-blue">PO</span>
+        <div><div class="metric-label">Open purchase orders</div><div class="metric-value">@Model.OpenOrderCount</div></div>
+        <a asp-controller="Procurement" asp-action="PurchaseOrders" aria-label="View purchase orders">↗</a>
+    </article>
+    <article class="metric-card">
+        <span class="metric-icon icon-green">▤</span>
+        <div><div class="metric-label">Active products</div><div class="metric-value">@Model.ProductCount</div></div>
+        <a asp-controller="Procurement" asp-action="Products" aria-label="View products">↗</a>
+    </article>
+    <article class="metric-card">
+        <span class="metric-icon icon-violet">⌂</span>
+        <div><div class="metric-label">Active suppliers</div><div class="metric-value">@Model.SupplierCount</div></div>
+        <a asp-controller="Procurement" asp-action="Suppliers" aria-label="View suppliers">↗</a>
+    </article>
+    <article class="metric-card">
+        <span class="metric-icon icon-amber">▥</span>
+        <div><div class="metric-label">Products in stock</div><div class="metric-value">@Model.StockedProductCount</div></div>
+        <a asp-controller="Procurement" asp-action="Inventory" aria-label="View inventory">↗</a>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <div class="panel-heading">
+            <div><h2>Recent purchase orders</h2><p>Latest supplier orders and receiving status</p></div>
+            <a class="text-link" asp-controller="Procurement" asp-action="PurchaseOrders">View all →</a>
+        </div>
+        @if (Model.RecentOrders.Count == 0)
+        {
+            <div class="empty-state"><strong>No purchase orders yet</strong><span>Create an order to begin tracking inbound stock.</span><a asp-controller="Procurement" asp-action="NewPurchaseOrder">Create purchase order</a></div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table app-table">
+                    <thead><tr><th>Order</th><th>Supplier</th><th>Date</th><th>Status</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var order in Model.RecentOrders)
+                    {
+                        <tr>
+                            <td><a class="table-primary-link" asp-controller="Procurement" asp-action="PurchaseOrder" asp-route-id="@order.Id">@order.Number</a></td>
+                            <td>@order.Supplier.Name</td>
+                            <td>@order.CreatedAtUtc.ToLocalTime().ToString("dd MMM yyyy")</td>
+                            <td><span class="status-pill status-@order.Status.ToLowerInvariant().Replace(" ", "-")">@order.Status</span></td>
+                            <td><a class="icon-link" asp-controller="Procurement" asp-action="PurchaseOrder" asp-route-id="@order.Id" aria-label="Open order">→</a></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </article>
+    <article class="panel">
+        <div class="panel-heading"><div><h2>Reorder attention</h2><p>Items at or below their reorder level</p></div><span class="mini-count">@Model.LowStock.Count</span></div>
+        @if (Model.LowStock.Count == 0)
+        {
+            <div class="empty-state compact"><strong>All clear</strong><span>No low-stock products to show.</span></div>
+        }
+        else
+        {
+            <div class="attention-list">
+            @foreach (var item in Model.LowStock)
+            {
+                <div class="attention-row">
+                    <span class="attention-dot"></span>
+                    <div class="attention-name"><strong>@item.Product.Name</strong><span>@item.Product.SKU</span></div>
+                    <div class="attention-qty"><strong>@item.OnHand.ToString("N2")</strong><span>@item.Product.StockUnit</span></div>
+                </div>
+            }
+            </div>
+            <a class="text-link panel-bottom-link" asp-controller="Procurement" asp-action="Inventory">Review stock →</a>
+        }
+    </article>
+</section>

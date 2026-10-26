@@ -1,0 +1,21 @@
+@model WarehouseProcurement.Models.Supplier
+@{
+    ViewData["Title"] = "Add supplier";
+}
+<section class="page-heading">
+    <div><div class="eyebrow">SUPPLIER DIRECTORY</div><h1>Add supplier</h1><p>Supplier contact information for purchasing.</p></div>
+    <a class="btn btn-outline-secondary" asp-action="Suppliers">Back to suppliers</a>
+</section>
+<section class="panel form-panel">
+    <form asp-action="NewSupplier" method="post">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div class="form-grid">
+            <div class="field"><label asp-for="Name">Supplier name <span class="required">*</span></label><input asp-for="Name" class="form-control" autocomplete="organization" /><span asp-validation-for="Name" class="field-error"></span></div>
+            <div class="field"><label asp-for="ContactName">Contact person</label><input asp-for="ContactName" class="form-control" autocomplete="name" /></div>
+            <div class="field"><label asp-for="Phone">Phone</label><input asp-for="Phone" class="form-control" autocomplete="tel" /></div>
+            <div class="field"><label asp-for="Email">Email</label><input asp-for="Email" class="form-control" autocomplete="email" /><span asp-validation-for="Email" class="field-error"></span></div>
+            <div class="field field-span"><label asp-for="Address">Address</label><input asp-for="Address" class="form-control" autocomplete="street-address" /></div>
+        </div>
+        <div class="form-actions"><a class="btn btn-outline-secondary" asp-action="Suppliers">Cancel</a><button class="btn btn-primary" type="submit">Save supplier</button></div>
+    </form>
+</section>
