@@ -27,6 +27,10 @@ public sealed class ProcurementDbContext(DbContextOptions<ProcurementDbContext> 
             .IsConcurrencyToken();
 
         modelBuilder.Entity<PurchaseOrder>()
+            .Property(order => order.ExpectedAt)
+            .HasColumnType("timestamp without time zone");
+
+        modelBuilder.Entity<PurchaseOrder>()
             .HasMany(order => order.Lines)
             .WithOne(line => line.PurchaseOrder)
             .HasForeignKey(line => line.PurchaseOrderId)
