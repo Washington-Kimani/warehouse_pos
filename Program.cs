@@ -17,6 +17,9 @@ if (!app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseAuthorization();
 
+// static files
+app.UseStaticFiles();
+
 app.MapStaticAssets();
 
 app.MapControllerRoute(
