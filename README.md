@@ -2,16 +2,25 @@
 
 A C# / ASP.NET Core 10 procurement and inbound-inventory starter application. It provides a responsive browser UI for supplier and product records, purchase orders, partial goods receipts, and a stock movement ledger.
 
-## Run locally
+## Run with Docker
 
-Requirements: .NET 10 SDK.
+Requirements: Docker with the Compose plugin.
 
 ```sh
-dotnet restore
-dotnet run
+docker compose up --build
 ```
 
-Open the local URL printed by ASP.NET Core. On first start, the application creates `warehouse-procurement.db` in the application directory and adds a `MAIN` warehouse. No internet connection is needed after the application and its dependencies are available locally. Staff on the same LAN can use the host machine's LAN address while that host and network are available.
+Open [http://localhost:8080](http://localhost:8080). Compose starts PostgreSQL, waits for its health check, then starts the application. On first start, the application creates the PostgreSQL schema and adds a `MAIN` warehouse. PostgreSQL data is stored in the `postgres_data` Docker volume and survives container restarts.
+
+The default database credentials are for local development only. Set `POSTGRES_PASSWORD` (and optionally `POSTGRES_USER` and `POSTGRES_DB`) in the environment or a local `.env` file before using this setup beyond local development. You can change the host ports with `APP_PORT` and `POSTGRES_PORT`.
+
+To run the app outside Docker against the Compose database, start PostgreSQL with `docker compose up -d database`, then run:
+
+```sh
+ConnectionStrings__Procurement='Host=localhost;Port=5432;Database=warehouse_procurement;Username=warehouse;Password=warehouse_dev_password' dotnet run
+```
+
+The previous `warehouse-procurement.db` SQLite file is not modified or imported; the PostgreSQL database starts fresh. To stop the containers while keeping the data, use `docker compose down`. To permanently delete the PostgreSQL data, use `docker compose down --volumes`.
 
 ## Procurement workflow
 

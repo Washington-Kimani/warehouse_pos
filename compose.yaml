@@ -1,0 +1,33 @@
+services:
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-warehouse_procurement}
+      POSTGRES_USER: ${POSTGRES_USER:-warehouse}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-warehouse_dev_password}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__Procurement: "Host=database;Port=5432;Database=${POSTGRES_DB:-warehouse_procurement};Username=${POSTGRES_USER:-warehouse};Password=${POSTGRES_PASSWORD:-warehouse_dev_password}"
+    ports:
+      - "${APP_PORT:-8080}:8080"
+
+volumes:
+  postgres_data:

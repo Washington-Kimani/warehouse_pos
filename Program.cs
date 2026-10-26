@@ -5,8 +5,11 @@ using WarehouseProcurement.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+var connectionString = builder.Configuration.GetConnectionString("Procurement")
+    ?? throw new InvalidOperationException("The 'Procurement' connection string is not configured.");
+
 builder.Services.AddDbContext<ProcurementDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Procurement")));
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
 
