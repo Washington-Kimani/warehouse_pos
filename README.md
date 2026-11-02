@@ -22,6 +22,15 @@ ConnectionStrings__Procurement='Host=localhost;Port=5432;Database=warehouse_proc
 
 The previous `warehouse-procurement.db` SQLite file is not modified or imported; the PostgreSQL database starts fresh. To stop the containers while keeping the data, use `docker compose down`. To permanently delete the PostgreSQL data, use `docker compose down --volumes`.
 
+## Use a hosted PostgreSQL database
+
+The application can connect to an externally hosted PostgreSQL database using either of these environment variables:
+
+- `ConnectionStrings__Procurement`: a standard Npgsql connection string, such as `Host=<host>;Port=5432;Database=<database>;Username=<user>;Password=<password>;SSL Mode=Require`.
+- `DATABASE_URL`: a `postgres://` or `postgresql://` URL, such as `postgresql://<user>:<password>@<host>:5432/<database>?sslmode=require`. The application converts this URL to an Npgsql connection string and requires TLS by default unless the URL specifies an `sslmode`.
+
+When deploying to Render, add the database's internal connection URL as the `DATABASE_URL` environment variable on the web service. Keep credentials in the host's environment settings, not in source control. The `ConnectionStrings__Procurement` setting takes precedence if both variables are configured. Local Docker Compose continues to use its bundled PostgreSQL service unless you change its environment.
+
 ## Procurement workflow
 
 1. Add suppliers and products, including each product's stock unit and reorder level.
